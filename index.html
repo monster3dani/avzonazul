@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AVZonazul · ¿Qué app de zona azul funciona aquí?</title>
+  <meta name="description" content="Has aparcado en zona azul en otra ciudad: AVZonazul te dice qué app de pago funciona allí.">
+  <meta name="theme-color" content="#1659CC">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="AVZonazul">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <img src="icons/icon-192.png" alt="" class="logo" width="40" height="40">
+    <div>
+      <h1 id="appName">AVZonazul</h1>
+      <p class="tag">¿Qué app de zona azul funciona aquí?</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="locate">
+      <button id="btnLocate" class="primary">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+        <span>¿Dónde he aparcado?</span>
+      </button>
+      <div class="or"><span>o busca el municipio</span></div>
+      <div class="search">
+        <input id="q" type="search" placeholder="Ej.: Girona, Reus, Madrid…" autocomplete="off" aria-label="Buscar municipio">
+        <ul id="suggest" role="listbox" hidden></ul>
+      </div>
+    </section>
+
+    <section id="status" class="status" hidden></section>
+
+    <section id="result" class="result" hidden aria-live="polite"></section>
+
+    <section class="tip">
+      <strong>Consejo:</strong> el cartel del parquímetro suele indicar la app oficial. Si ves otra que aquí no aparece, avísanos y la añadimos.
+    </section>
+
+    <section id="install" class="install" hidden>
+      <span>Añádela a tu pantalla de inicio para tenerla a mano.</span>
+      <button id="btnInstall" class="ghost">Instalar</button>
+    </section>
+  </main>
+
+  <footer>
+    <button id="btnReport" class="link">¿Falta algo o está mal? Avísanos</button>
+    <p class="meta"><span id="count"></span> · Datos revisados el <span id="updated"></span></p>
+    <p class="sign">Un proyecto <b>DanLab</b></p>
+  </footer>
+
+  <template id="tplApp">
+    <li class="app">
+      <div class="app-info">
+        <span class="app-name"></span>
+        <span class="app-by"></span>
+      </div>
+      <span class="badge"></span>
+      <div class="app-actions"></div>
+    </li>
+  </template>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1E6FE0"/>
+      <stop offset="1" stop-color="#0F4FB8"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- línea de zona azul -->
+  <rect x="64" y="392" width="384" height="14" rx="7" fill="#ffffff" opacity=".35"/>
+  <!-- señal P con interrogante -->
+  <rect x="128" y="96" width="256" height="256" rx="44" fill="#ffffff"/>
+  <path d="M196 312V136h70c40 0 66 24 66 58s-26 58-66 58h-30v60z M236 216h28c17 0 28-9 28-22s-11-22-28-22h-28z" fill="#0F4FB8"/>
+  <circle cx="352" cy="318" r="44" fill="#FFC531" stroke="#ffffff" stroke-width="10"/>
+  <text x="352" y="336" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="54" fill="#0B2A5C">?</text>
+  <!-- firma DanLab: matraz dentro de una D -->
+  <g transform="translate(404 404)">
+    <circle r="40" fill="#ffffff"/>
+    <path d="M-18 -24h14c18 0 32 10 32 24s-14 24-32 24h-14z" fill="none" stroke="#0B5F6A" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M-6 -12v8l-8 14c-2 4 0 8 5 8h12c5 0 7-4 5-8l-8-14v-8" fill="#0B5F6A"/>
+  </g>
+</svg>

@@ -1,0 +1,17 @@
+{
+  "name": "AVZonazul · ¿Qué app de zona azul funciona aquí?",
+  "short_name": "AVZonazul",
+  "description": "Te dice qué app de pago de zona azul funciona en el municipio donde has aparcado.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F7FC",
+  "theme_color": "#1659CC",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
