@@ -2,12 +2,12 @@
 //  CONFIGURACIÓN DE AVZONAZUL  —  lo único que normalmente tocarás
 // ============================================================
 window.AVZONAZUL_CONFIG = {
-  // Nombre que se ve en la cabecera
+  // Nombre de la app
   nombre: "AVZonazul",
 
-  // Enlace del formulario para que la gente avise de errores o
-  // de apps que faltan (por ejemplo un Google Form).
-  // Mientras esté vacío, el botón abre un aviso en GitHub.
+  // Enlace "rellenado previamente" de tu Google Form de avisos
+  // (en cada pregunta escribe: MUNICIPIO, ESTADO, APP y COMENTARIO).
+  // Pasos en el README. Mientras esté vacío, los avisos abren GitHub.
   formulario: "",
 
   // Tu repositorio de GitHub (usuario/repositorio)

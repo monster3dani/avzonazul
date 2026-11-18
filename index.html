@@ -4,68 +4,157 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>AVZonazul · ¿Qué app de zona azul funciona aquí?</title>
-  <meta name="description" content="Has aparcado en zona azul en otra ciudad: AVZonazul te dice qué app de pago funciona allí.">
-  <meta name="theme-color" content="#1659CC">
+  <meta name="description" content="Has aparcado en zona azul en otra ciudad: AVZonazul te dice qué app de pago funciona allí, el horario y te avisa antes de que se acabe el ticket.">
+  <meta name="theme-color" content="#161B24">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icons/favicon.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AVZonazul">
+  <link rel="stylesheet" href="lib/leaflet.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="top">
-    <img src="icons/icon-192.png" alt="" class="logo" width="40" height="40">
-    <div>
-      <h1 id="appName">AVZonazul</h1>
-      <p class="tag">¿Qué app de zona azul funciona aquí?</p>
+  <!-- Ticket en marcha (aparece cuando hay un aviso activo) -->
+  <div id="ticketBar" class="ticket-bar" hidden>
+    <div class="tb-main">
+      <span class="tb-label">Tu ticket · <b id="tbPlace"></b></span>
+      <span class="tb-time" id="tbTime">--:--</span>
     </div>
+    <div class="tb-progress"><i id="tbFill"></i></div>
+    <div class="tb-actions">
+      <span id="tbEnd"></span>
+      <button data-add="15">+15 min</button>
+      <button data-add="30">+30 min</button>
+      <button id="tbStop">Terminar</button>
+    </div>
+  </div>
+
+  <!-- Aviso de versión nueva -->
+  <div id="updBar" class="upd-bar" hidden>
+    <span>Hay una versión nueva de AVZonazul</span>
+    <button id="btnUpd">Actualizar</button>
+  </div>
+
+  <header class="hero">
+    <div class="brand">
+      <img src="icons/icon-192.png" alt="" width="44" height="44">
+      <div class="wordmark"><span class="av">AV</span>Zon<span class="azul">azul</span></div>
+    </div>
+    <p class="claim">Aparcas, la abres y te dice <em>con qué app se paga</em>.</p>
+
+    <button id="btnLocate" class="sign-btn">
+      <span class="sign"><span>P</span></span>
+      <span class="sign-text">
+        <b>¿Dónde he aparcado?</b>
+        <small>Usar mi ubicación</small>
+      </span>
+    </button>
+
+    <div class="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3a7 7 0 1 1 0 14 7 7 0 0 1 0-14zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm5.3 10.9 5.4 5.4-1.4 1.4-5.4-5.4z"/></svg>
+      <input id="q" type="search" placeholder="o escribe el municipio…" autocomplete="off" aria-label="Buscar municipio">
+      <ul id="suggest" role="listbox" hidden></ul>
+    </div>
+    <div class="road-line" aria-hidden="true"></div>
   </header>
 
   <main>
-    <section class="locate">
-      <button id="btnLocate" class="primary">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-        <span>¿Dónde he aparcado?</span>
-      </button>
-      <div class="or"><span>o busca el municipio</span></div>
-      <div class="search">
-        <input id="q" type="search" placeholder="Ej.: Girona, Reus, Madrid…" autocomplete="off" aria-label="Buscar municipio">
-        <ul id="suggest" role="listbox" hidden></ul>
-      </div>
-    </section>
-
     <section id="status" class="status" hidden></section>
 
-    <section id="result" class="result" hidden aria-live="polite"></section>
+    <section id="result" class="result" hidden aria-live="polite">
+      <div id="map" class="map"></div>
+      <article class="ticket">
+        <div class="ticket-head">
+          <small id="rLabel">Apps que funcionan en</small>
+          <h2 id="rName"></h2>
+          <p id="rProv"></p>
+        </div>
+        <div id="rHours" class="hours" hidden></div>
+        <ul id="rApps" class="apps"></ul>
+        <div id="rEmpty" class="empty" hidden>
+          <p>Todavía no tenemos este municipio. Mira el cartel del parquímetro: suele decir la app oficial.</p>
+          <p>¿Ya sabes cuál funciona? Dínoslo y lo añadimos para el próximo que aparque aquí.</p>
+          <button class="btn-solid" id="btnAddHere">Añadir este municipio</button>
+        </div>
+        <p id="rLegend" class="legend">«Confirmada»: dato de fuentes recientes · «Por confirmar»: sale en listados antiguos.</p>
+      </article>
+
+      <!-- Aviso de fin de tiempo -->
+      <section id="timer" class="timer">
+        <h3>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a9 9 0 1 1 0 18 9 9 0 0 1 0-18zm0 2a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm1 2v4.6l3 1.8-1 1.7-4-2.4V8zM9 1h6v2H9z"/></svg>
+          Avísame antes de que se acabe
+        </h3>
+        <p class="timer-sub">¿Cuánto tiempo has pagado?</p>
+        <div class="chips" id="chips">
+          <button data-min="30">30 min</button>
+          <button data-min="60">1 h</button>
+          <button data-min="90">1 h 30</button>
+          <button data-min="120">2 h</button>
+          <label class="chip-custom"><input id="customMin" type="number" inputmode="numeric" min="5" max="600" placeholder="otro"> min</label>
+        </div>
+        <div class="timer-row">
+          <label>Avisar
+            <select id="before">
+              <option value="5">5 min antes</option>
+              <option value="10" selected>10 min antes</option>
+              <option value="15">15 min antes</option>
+            </select>
+          </label>
+          <button id="btnStart" class="btn-solid" disabled>Empezar</button>
+        </div>
+      </section>
+    </section>
 
     <section class="tip">
-      <strong>Consejo:</strong> el cartel del parquímetro suele indicar la app oficial. Si ves otra que aquí no aparece, avísanos y la añadimos.
+      <b>Consejo:</b> el cartel del parquímetro suele indicar la app oficial. Si ves otra que aquí no sale, avísanos.
     </section>
 
     <section id="install" class="install" hidden>
       <span>Añádela a tu pantalla de inicio para tenerla a mano.</span>
-      <button id="btnInstall" class="ghost">Instalar</button>
+      <button id="btnInstall" class="btn-line">Instalar</button>
     </section>
   </main>
 
   <footer>
     <button id="btnReport" class="link">¿Falta algo o está mal? Avísanos</button>
     <p class="meta"><span id="count"></span> · Datos revisados el <span id="updated"></span></p>
-    <p class="sign">Un proyecto <b>DanLab</b></p>
+    <p class="sign-off">Un proyecto <b>DanLab</b> · <span id="ver"></span></p>
   </footer>
 
-  <template id="tplApp">
-    <li class="app">
-      <div class="app-info">
-        <span class="app-name"></span>
-        <span class="app-by"></span>
-      </div>
-      <span class="badge"></span>
-      <div class="app-actions"></div>
-    </li>
-  </template>
+  <!-- Formulario de avisos -->
+  <dialog id="sheet" class="sheet">
+    <form id="reportForm" method="dialog">
+      <header>
+        <h3>Ayúdanos a mejorar</h3>
+        <button type="button" class="x" id="sheetClose" aria-label="Cerrar">×</button>
+      </header>
+      <label class="field">Municipio
+        <input id="fMuni" required autocomplete="off" placeholder="Ej.: Sabadell">
+      </label>
+      <fieldset class="field seg">
+        <legend>¿Qué pasa?</legend>
+        <label><input type="radio" name="estado" value="Funciona" checked> <span>Esta app funciona aquí</span></label>
+        <label><input type="radio" name="estado" value="Ya no funciona"> <span>Esta app ya no funciona</span></label>
+      </fieldset>
+      <label class="field">App
+        <select id="fApp" required></select>
+      </label>
+      <label class="field" id="fOtherWrap" hidden>Nombre de la app
+        <input id="fOther" placeholder="Tal como sale en la tienda de apps">
+      </label>
+      <label class="field">Comentario <small>(opcional)</small>
+        <textarea id="fNote" rows="2" placeholder="Ej.: lo pone el cartel del parquímetro de la calle Mayor"></textarea>
+      </label>
+      <button class="btn-solid wide" id="fSend" type="submit">Enviar</button>
+      <p class="sheet-ok" id="fOk" hidden>¡Gracias! Lo revisamos y lo añadimos.</p>
+    </form>
+  </dialog>
 
+  <script src="lib/leaflet.js"></script>
+  <script src="version.js"></script>
   <script src="config.js"></script>
   <script src="app.js"></script>
 </body>

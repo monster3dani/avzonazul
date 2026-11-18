@@ -18,9 +18,17 @@ Ese enlace es el que compartes. Desde el móvil, la propia web ofrece "Instalar"
 | Añadir o corregir municipios y apps | `data.json` |
 | Cambiar el nombre o poner el formulario de avisos | `config.js` |
 | Cambiar el icono | `icons/` (sustituye los PNG manteniendo nombres) |
+| Añadir horarios | `data.json` (ver «Horarios») |
 
 Al cambiar `data.json` en GitHub, todos los usuarios ven los datos nuevos al abrir la app, sin hacer nada.
-Si cambias `app.js`, `styles.css` o `index.html`, sube también el número de `VERSION` en `sw.js` (por ejemplo `avzonazul-v3`) para que los móviles se actualicen.
+Si cambias cualquier otro fichero de la app, sube el número en `version.js`. Los móviles verán «Hay una versión nueva» y se actualizan con un toque.
+
+**Cómo numerar** (`1.1.0`):
+- Arreglo pequeño → el último número (`1.1.0` → `1.1.1`).
+- Novedades → el del medio (`1.1.1` → `1.2.0`).
+- Cambio enorme → el primero (`1.9.0` → `2.0.0`).
+
+Historial: 1.0.0 primera versión · 1.1.0 portada nueva, mapa, logos, horarios, aviso de ticket y formulario con lista de apps.
 
 ## Formato de data.json
 
@@ -28,9 +36,34 @@ Si cambias `app.js`, `styles.css` o `index.html`, sube también el número de `V
 - `places`: cada municipio con `n` (nombre), `p` (provincia), `al` (otros nombres, opcional) y `a` (apps que funcionan).
 - En cada app del municipio, `c` vale `reciente` (dato confirmado con fuentes recientes) o `por_confirmar` (sale en listados antiguos).
 
-## Avisos de los usuarios
+## Avisos de los usuarios (Google Form)
 
-Mientras `formulario` esté vacío en `config.js`, el botón "Avísanos" abre un aviso (issue) en el repositorio de GitHub, que requiere cuenta de GitHub. Lo recomendable es crear un Google Form sencillo (municipio, app, cómo lo sabe) y pegar su enlace en `config.js`.
+Los avisos que manda la gente desde la app pueden llegarte directamente a una hoja de Google, sin que nadie necesite cuenta:
+
+1. Entra en forms.google.com y crea un formulario en blanco llamado "Avisos AVZonazul".
+2. Añade 4 preguntas de tipo **Respuesta corta**, en este orden: `Municipio`, `Qué pasa`, `App` y `Comentario`.
+3. Menú de los tres puntos (arriba a la derecha) → **Obtener enlace rellenado previamente**.
+4. En cada pregunta escribe exactamente, en mayúsculas: `MUNICIPIO`, `ESTADO`, `APP` y `COMENTARIO`. Pulsa **Obtener enlace** y luego **Copiar enlace**.
+5. Pega ese enlace entre las comillas de `formulario:` en `config.js` y súbelo a GitHub.
+
+Las respuestas aparecen en la pestaña **Respuestas** del formulario (puedes enlazarlas a una hoja de cálculo). Mientras `formulario` esté vacío, los avisos abren una incidencia en GitHub.
+
+## Horarios
+
+Cada municipio puede llevar `h` con su horario orientativo:
+
+```json
+"h": {
+  "t": [[1,5,"09:00","14:00"], [1,5,"16:00","20:00"], [6,6,"09:00","14:00"]],
+  "u": [6],
+  "v": {"desde":"08-01","hasta":"08-31","t":[[1,5,"09:00","15:00"]]},
+  "nota": "Texto libre"
+}
+```
+
+- `t`: tramos de pago `[día desde, día hasta, hora inicio, hora fin]` (1 = lunes … 7 = domingo).
+- `u`: días en que depende de la zona (la app dice «mira el cartel»).
+- `v`: horario especial de verano entre dos fechas (mes-día).
 
 ## Notas
 
