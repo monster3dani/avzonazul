@@ -10,6 +10,9 @@ window.AVZONAZUL_CONFIG = {
   // Pasos en el README. Mientras esté vacío, los avisos abren GitHub.
   formulario: "",
 
+  // Dónde lee la app Android los datos actualizados (normalmente no hace falta tocarlo)
+  datos: "https://monster3dani.github.io/avzonazul/data.json",
+
   // Tu repositorio de GitHub (usuario/repositorio)
   repo: "monster3dani/avzonazul"
 };

@@ -8,6 +8,22 @@
 
   let DATA = null, INDEX = [], lastPlace = null, map = null;
 
+  // ¿Estamos dentro de la app Android (APK) o en el navegador?
+  const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  const Plugin = name => (NATIVE && window.Capacitor.Plugins && window.Capacitor.Plugins[name]) || null;
+  const DATA_URL = CFG.datos || `https://${(CFG.repo || "").split("/")[0]}.github.io/${(CFG.repo || "").split("/")[1]}/data.json`;
+  // Abrir enlaces de fuera (tiendas, webs) en el navegador o la app que toque
+  function openExternal(url) {
+    if (NATIVE) location.href = url; else window.open(url, "_blank", "noopener");
+  }
+  if (NATIVE) {
+    document.documentElement.classList.add("native");
+    document.addEventListener("click", e => {
+      const a = e.target.closest && e.target.closest('a[href^="http"]');
+      if (a) { e.preventDefault(); openExternal(a.href); }
+    });
+  }
+
   // ================= utilidades =================
   const norm = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
     .replace(/[’'`´]/g, " ").replace(/[\/\-–,().]/g, " ").replace(/\s+/g, " ").trim();
@@ -38,8 +54,19 @@
 
   // ================= datos =================
   async function loadData() {
-    const r = await fetch("data.json", { cache: "no-cache" });
-    DATA = await r.json();
+    if (NATIVE) {
+      // En la APK: datos frescos de la web; si no hay red, la última copia o los que vienen dentro
+      try {
+        const r = await fetch(DATA_URL, { cache: "no-cache" });
+        if (!r.ok) throw 0;
+        DATA = await r.json(); store.set("datos", DATA);
+      } catch (_) {
+        DATA = store.get("datos") || await (await fetch("data.json")).json();
+      }
+    } else {
+      const r = await fetch("data.json", { cache: "no-cache" });
+      DATA = await r.json();
+    }
     INDEX = [];
     for (const p of DATA.places) {
       INDEX.push({ key: norm(p.n), place: p });
@@ -124,9 +151,9 @@
   const DAYS = ["", "L", "M", "X", "J", "V", "S", "D"];
   const DAY_NAMES = ["", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
   function activeSchedule(h, date) {
-    if (h.v) {
-      const md = `${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-      if (md >= h.v.desde && md <= h.v.hasta) return { t: h.v.t, u: h.v.u || [], verano: true };
+    const md = `${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    for (const v of [].concat(h.v || [])) {
+      if (md >= v.desde && md <= v.hasta) return { t: v.t, u: v.u || [], verano: true };
     }
     return { t: h.t, u: h.u || [], verano: false };
   }
@@ -337,25 +364,50 @@
     custom.oninput = () => select(+custom.value || 0);
     start.onclick = async () => {
       if (!(minutes >= 5)) return;
-      if ("Notification" in window && Notification.permission === "default") { try { await Notification.requestPermission(); } catch (_) {} }
+      if (NATIVE) await nativeNotifyReady();
+      else if ("Notification" in window && Notification.permission === "default") { try { await Notification.requestPermission(); } catch (_) {} }
       const now = Date.now();
       store.set("ticket", { place: (lastPlace && lastPlace.n) || "Zona azul", start: now, end: now + minutes * 60000, before: +$("#before").value, notified: false });
-      custom.value = ""; select(0); runTicket();
+      custom.value = ""; select(0); runTicket(); scheduleNative();
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
     document.querySelectorAll("#ticketBar [data-add]").forEach(b => b.onclick = () => {
       const t = store.get("ticket"); if (!t) return;
-      const base = Math.max(t.end, Date.now()); t.end = base + (+b.dataset.add) * 60000; t.notified = false; store.set("ticket", t); runTicket();
+      const base = Math.max(t.end, Date.now()); t.end = base + (+b.dataset.add) * 60000; t.notified = false; store.set("ticket", t); runTicket(); scheduleNative();
     });
-    $("#tbStop").onclick = () => { store.del("ticket"); runTicket(); };
+    $("#tbStop").onclick = () => { store.del("ticket"); runTicket(); scheduleNative(); };
     document.addEventListener("visibilitychange", () => { if (!document.hidden) runTicket(); });
     runTicket();
+  }
+  // --- Avisos programados en el sistema (solo APK): suenan aunque la app esté cerrada ---
+  async function nativeNotifyReady() {
+    const LN = Plugin("LocalNotifications"); if (!LN) return false;
+    try {
+      let p = await LN.checkPermissions();
+      if (p.display !== "granted") p = await LN.requestPermissions();
+      try {
+        await LN.createChannel({ id: "ticket", name: "Fin del ticket", description: "Aviso antes de que se acabe el tiempo de zona azul", importance: 5, visibility: 1, vibration: true });
+      } catch (_) {}
+      return p.display === "granted";
+    } catch (_) { return false; }
+  }
+  async function scheduleNative() {
+    const LN = Plugin("LocalNotifications"); if (!LN) return;
+    try { await LN.cancel({ notifications: [{ id: 101 }, { id: 102 }] }); } catch (_) {}
+    const t = store.get("ticket"); if (!t) return;
+    const now = Date.now(), list = [];
+    const warnAt = t.end - t.before * 60000;
+    const body = `${t.place}: tu ticket acaba a las ${hhmm(new Date(t.end))}. Amplíalo desde la app de pago.`;
+    if (warnAt > now + 5000) list.push({ id: 101, title: `Quedan ${t.before} min de zona azul`, body, channelId: "ticket", schedule: { at: new Date(warnAt), allowWhileIdle: true } });
+    if (t.end > now + 5000) list.push({ id: 102, title: "Se ha acabado tu ticket", body: `${t.place}: el tiempo de zona azul ha terminado.`, channelId: "ticket", schedule: { at: new Date(t.end), allowWhileIdle: true } });
+    if (list.length) { try { await LN.schedule({ notifications: list }); } catch (_) {} }
   }
   async function notify(t) {
     const left = Math.max(0, Math.round((t.end - Date.now()) / 60000));
     const title = left > 0 ? `Quedan ${left} min de zona azul` : "Se ha acabado tu ticket";
     const body = `${t.place}: tu ticket acaba a las ${hhmm(new Date(t.end))}. Amplíalo desde la app de pago.`;
     try { navigator.vibrate && navigator.vibrate([300, 150, 300, 150, 600]); } catch (_) {}
+    if (NATIVE) return; // en la APK ya lo avisa el sistema
     if (!("Notification" in window) || Notification.permission !== "granted") return;
     try {
       const reg = await navigator.serviceWorker.getRegistration();
@@ -444,7 +496,7 @@
       } else {
         const title = `${estado === "Funciona" ? "Añadir" : "Quitar"}: ${app} en ${muni}`;
         const text = `Municipio: ${muni}\nApp: ${app}\nQué pasa: ${estado}\nComentario: ${nota}\n`;
-        window.open(`https://github.com/${CFG.repo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(text)}`, "_blank", "noopener");
+        openExternal(`https://github.com/${CFG.repo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(text)}`);
         dlg.close();
       }
     });
@@ -456,6 +508,13 @@
     window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; $("#install").hidden = false; });
     $("#btnInstall").onclick = async () => { if (deferred) { deferred.prompt(); await deferred.userChoice; deferred = null; $("#install").hidden = true; } };
     const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+    if (NATIVE) return;
+    // En Android desde el navegador: ofrecer la app de verdad (APK)
+    if (PLATFORM === "android") {
+      const a = $("#apkLink");
+      a.href = `https://github.com/${CFG.repo}/releases/latest/download/AVZonazul.apk`;
+      a.hidden = false;
+    }
     if (PLATFORM === "ios" && !standalone) {
       $("#install").hidden = false;
       $("#install span").textContent = "En iPhone: pulsa Compartir y luego «Añadir a pantalla de inicio».";
@@ -482,7 +541,53 @@
   }
   // ================= versión y actualizaciones =================
   $("#ver").textContent = "v" + (window.AVZ_VERSION || "?");
-  if ("serviceWorker" in navigator) {
+
+  // --- APK: busca versión nueva en GitHub (Releases), la descarga y abre el instalador ---
+  const newer = (a, b) => {
+    const x = String(a).replace(/^v/, "").split(".").map(Number), y = String(b).replace(/^v/, "").split(".").map(Number);
+    for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0); }
+    return false;
+  };
+  async function checkApkUpdate(force) {
+    const last = store.get("updCheck") || 0;
+    if (!force && Date.now() - last < 3 * 3600e3) return;
+    store.set("updCheck", Date.now());
+    try {
+      const r = await fetch(`https://api.github.com/repos/${CFG.repo}/releases/latest`, { headers: { Accept: "application/vnd.github+json" }, cache: "no-cache" });
+      if (!r.ok) return;
+      const rel = await r.json();
+      const asset = (rel.assets || []).find(a => /\.apk$/i.test(a.name));
+      if (!asset || !newer(rel.tag_name, window.AVZ_VERSION)) return;
+      const ver = String(rel.tag_name).replace(/^v/, "");
+      $("#updText").textContent = `Hay una versión nueva de AVZonazul (${ver})`;
+      $("#updBar").hidden = false;
+      const btn = $("#btnUpd");
+      btn.textContent = "Actualizar"; btn.disabled = false;
+      btn.onclick = async () => {
+        const U = Plugin("Updater");
+        if (!U) { openExternal(asset.browser_download_url); return; }
+        try {
+          const ok = await U.canInstall();
+          if (!ok.allowed) {
+            $("#updText").textContent = "Permite a AVZonazul instalar apps (solo esta vez) y vuelve a pulsar Actualizar";
+            await U.openInstallSettings(); return;
+          }
+          btn.disabled = true; btn.textContent = "Descargando…";
+          const h = await U.addListener("progress", p => { btn.textContent = `Descargando ${p.percent}%`; });
+          await U.downloadAndInstall({ url: asset.browser_download_url });
+          try { h.remove(); } catch (_) {}
+          btn.disabled = false; btn.textContent = "Instalar";
+        } catch (e) {
+          btn.disabled = false; btn.textContent = "Reintentar";
+          $("#updText").textContent = "No se pudo descargar. Revisa la conexión.";
+        }
+      };
+    } catch (_) {}
+  }
+  if (NATIVE) {
+    window.addEventListener("load", () => checkApkUpdate(true));
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) checkApkUpdate(false); });
+  } else if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
       let reg;
       try { reg = await navigator.serviceWorker.register("sw.js"); } catch (_) { return; }

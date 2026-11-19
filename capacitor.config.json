@@ -1,0 +1,15 @@
+{
+  "appId": "net.danlab.avzonazul",
+  "appName": "AVZonazul",
+  "webDir": "www",
+  "android": {
+    "adjustMarginsForEdgeToEdge": "auto",
+    "backgroundColor": "#161B24"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_avz",
+      "iconColor": "#1659CC"
+    }
+  }
+}

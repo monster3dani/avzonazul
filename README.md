@@ -28,7 +28,7 @@ Si cambias cualquier otro fichero de la app, sube el número en `version.js`. Lo
 - Novedades → el del medio (`1.1.1` → `1.2.0`).
 - Cambio enorme → el primero (`1.9.0` → `2.0.0`).
 
-Historial: 1.0.0 primera versión · 1.1.0 portada nueva, mapa, logos, horarios, aviso de ticket y formulario con lista de apps.
+Historial: 1.0.0 primera versión · 1.1.0 portada nueva, mapa, logos, horarios, aviso de ticket y formulario con lista de apps · 1.2.0 app Android (APK), logo DanLab oficial y más ciudades.
 
 ## Formato de data.json
 
@@ -69,3 +69,21 @@ Cada municipio puede llevar `h` con su horario orientativo:
 
 - El municipio se detecta con OpenStreetMap (Nominatim), gratis y sin registro. Para un uso moderado va sobrado.
 - La firma DanLab del icono es una versión dibujada aproximada; si quieres la oficial, sustituye `icons/icon.svg` y los PNG por los tuyos.
+
+## App Android (APK)
+
+GitHub fabrica el APK solo cada vez que cambias `version.js`, y lo publica en **Releases** con el nombre `AVZonazul.apk`.
+
+**Una sola vez:** en el repositorio, **Settings → Secrets and variables → Actions → New repository secret**:
+- Name: `AVZ_KS_PASS`
+- Secret: la contraseña de firma (te la pasé aparte; guárdala, sin ella no se pueden fabricar actualizaciones).
+
+**Cómo se instala:** desde el móvil, abre la web y pulsa «Descargar la app para Android», o entra en Releases y descarga `AVZonazul.apk`.
+
+**Cómo se actualiza:** sube el número de `version.js`. GitHub fabrica la versión nueva (pestaña **Actions**, unos 5 minutos) y la app avisa «Hay una versión nueva» → **Actualizar** → **Instalar**.
+
+**Qué hace distinto la APK:**
+- El aviso de fin de ticket lo programa Android: suena aunque la app esté cerrada o el móvil bloqueado.
+- Los datos (`data.json`) los lee de la web, así que siguen actualizándose sin fabricar otra APK.
+
+Ficheros de la parte Android: `native/` (iconos, actualizador, preparación), `package.json`, `capacitor.config.json` y `.github/workflows/apk.yml`. La clave de firma es `native/avzonazul.keystore`: no la borres ni la cambies, o las actualizaciones no se podrán instalar encima.

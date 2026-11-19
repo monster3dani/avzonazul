@@ -1,22 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1E6FE0"/>
-      <stop offset="1" stop-color="#0F4FB8"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <!-- línea de zona azul -->
-  <rect x="64" y="392" width="384" height="14" rx="7" fill="#ffffff" opacity=".35"/>
-  <!-- señal P con interrogante -->
-  <rect x="128" y="96" width="256" height="256" rx="44" fill="#ffffff"/>
-  <path d="M196 312V136h70c40 0 66 24 66 58s-26 58-66 58h-30v60z M236 216h28c17 0 28-9 28-22s-11-22-28-22h-28z" fill="#0F4FB8"/>
-  <circle cx="352" cy="318" r="44" fill="#FFC531" stroke="#ffffff" stroke-width="10"/>
-  <text x="352" y="336" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="54" fill="#0B2A5C">?</text>
-  <!-- firma DanLab: matraz dentro de una D -->
-  <g transform="translate(404 404)">
-    <circle r="40" fill="#ffffff"/>
-    <path d="M-18 -24h14c18 0 32 10 32 24s-14 24-32 24h-14z" fill="none" stroke="#0B5F6A" stroke-width="7" stroke-linejoin="round"/>
-    <path d="M-6 -12v8l-8 14c-2 4 0 8 5 8h12c5 0 7-4 5-8l-8-14v-8" fill="#0B5F6A"/>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1E6FE0"/><stop offset="1" stop-color="#0F4FB8"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="64" y="404" width="300" height="14" rx="7" fill="#ffffff" opacity=".35"/>
+  <rect x="112" y="84" width="268" height="268" rx="46" fill="#ffffff"/>
+  <path d="M184 320V140h74c42 0 69 25 69 61s-27 61-69 61h-32v58z M226 222h30c18 0 30-9 30-23s-12-23-30-23h-30z" fill="#1659CC"/>
+  <circle cx="356" cy="322" r="46" fill="#FFC531" stroke="#ffffff" stroke-width="10"/>
+  <text x="356" y="341" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-weight="900" font-size="56" fill="#0B2A5C">?</text>
+<rect x="372" y="372" width="104" height="104" rx="24.96" fill="#0B5F6A" stroke="#ffffff" stroke-width="9.36"/><svg x="386.56" y="384.48" width="74.88" height="74.88" viewBox="0 -10 250 250"><defs><clipPath id="dlc"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs>
+<g fill="none" stroke="#ffffff" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc)"/></g>
+<g fill="#ffffff"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg></svg>
