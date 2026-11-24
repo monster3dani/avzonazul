@@ -6,8 +6,10 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // Plugin propio para descargar e instalar las versiones nuevas
-        registerPlugin(UpdaterPlugin.class);
+        // Plugins propios de AVZonazul
+        registerPlugin(UpdaterPlugin.class);   // descargar e instalar versiones nuevas
+        registerPlugin(AppsPlugin.class);      // abrir la app de pago si está instalada
+        registerPlugin(TicketPlugin.class);    // cuenta atrás fija en las notificaciones
         super.onCreate(savedInstanceState);
     }
 }

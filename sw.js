@@ -3,7 +3,7 @@
 importScripts("version.js");
 const VERSION = "avzonazul-" + self.AVZ_VERSION;
 const SHELL = [
-  "./", "index.html", "version.js", "styles.css", "app.js", "config.js", "manifest.webmanifest",
+  "./", "index.html", "version.js", "i18n.js", "styles.css", "app.js", "config.js", "manifest.webmanifest",
   "lib/leaflet.js", "lib/leaflet.css",
   "fonts/barlow-condensed-latin-600-normal.woff2", "fonts/barlow-condensed-latin-800-normal.woff2",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon.png"
@@ -29,7 +29,7 @@ self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
   const url = new URL(e.request.url);
   // Datos: siempre frescos; sin red, la última copia
-  if (url.pathname.endsWith("data.json")) {
+  if (url.pathname.endsWith("data.json") || url.pathname.endsWith("festivos.json")) {
     e.respondWith(
       fetch(e.request).then(r => { const c = r.clone(); caches.open(VERSION).then(x => x.put(e.request, c)); return r; })
         .catch(() => caches.match(e.request))

@@ -26,7 +26,7 @@ function patch(file, fn) {
 if (mode === "web") {
   const WWW = path.join(ROOT, "www");
   fs.rmSync(WWW, { recursive: true, force: true });
-  for (const f of ["index.html", "styles.css", "app.js", "config.js", "version.js", "data.json", "manifest.webmanifest", "lib", "fonts", "icons"]) {
+  for (const f of ["index.html", "styles.css", "app.js", "config.js", "version.js", "i18n.js", "data.json", "festivos.json", "manifest.webmanifest", "lib", "fonts", "icons"]) {
     copy(path.join(ROOT, f), path.join(WWW, f));
   }
   console.log("Web copiada a www/");
@@ -48,6 +48,18 @@ if (mode === "web") {
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Para encontrar y abrir las apps de pago instaladas -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
 </manifest>`));
 
   // Versión y firma

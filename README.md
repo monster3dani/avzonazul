@@ -19,6 +19,9 @@ Ese enlace es el que compartes. Desde el móvil, la propia web ofrece "Instalar"
 | Cambiar el nombre o poner el formulario de avisos | `config.js` |
 | Cambiar el icono | `icons/` (sustituye los PNG manteniendo nombres) |
 | Añadir horarios | `data.json` (ver «Horarios») |
+| Cambiar textos o traducciones | `i18n.js` |
+| Zona de bajas emisiones de una ciudad | `data.json`, campo `zbe` (`e`: activa, avisos, aprobada, revision o preparacion; `n`: nota) |
+| Festivos | `festivos.json` (nacionales y autonómicos 2026–2028 y algunos locales) |
 
 Al cambiar `data.json` en GitHub, todos los usuarios ven los datos nuevos al abrir la app, sin hacer nada.
 Si cambias cualquier otro fichero de la app, sube el número en `version.js`. Los móviles verán «Hay una versión nueva» y se actualizan con un toque.
@@ -28,7 +31,7 @@ Si cambias cualquier otro fichero de la app, sube el número en `version.js`. Lo
 - Novedades → el del medio (`1.1.1` → `1.2.0`).
 - Cambio enorme → el primero (`1.9.0` → `2.0.0`).
 
-Historial: 1.0.0 primera versión · 1.1.0 portada nueva, mapa, logos, horarios, aviso de ticket y formulario con lista de apps · 1.2.0 app Android (APK), logo DanLab oficial y más ciudades.
+Historial: 1.0.0 primera versión · 1.1.0 portada nueva, mapa, logos, horarios, aviso de ticket y formulario con lista de apps · 1.2.0 app Android (APK), logo DanLab oficial y más ciudades · 1.3.0 dónde está mi coche, abrir la app de pago instalada, ZBE, festivos, cuenta atrás fija en notificaciones, recientes/favoritas e idiomas (castellano, català, English).
 
 ## Formato de data.json
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>AVZonazul · ¿Qué app de zona azul funciona aquí?</title>
-  <meta name="description" content="Has aparcado en zona azul en otra ciudad: AVZonazul te dice qué app de pago funciona allí, el horario y te avisa antes de que se acabe el ticket.">
+  <meta name="description" content="Has aparcado en zona azul en otra ciudad: AVZonazul te dice qué app de pago funciona allí, el horario, si hay ZBE, te avisa antes de que se acabe el ticket y te lleva de vuelta al coche.">
   <meta name="theme-color" content="#161B24">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icons/favicon.png">
@@ -19,7 +19,7 @@
   <!-- Ticket en marcha (aparece cuando hay un aviso activo) -->
   <div id="ticketBar" class="ticket-bar" hidden>
     <div class="tb-main">
-      <span class="tb-label">Tu ticket · <b id="tbPlace"></b></span>
+      <span class="tb-label"><span data-i18n="yourTicket">Tu ticket</span> · <b id="tbPlace"></b></span>
       <span class="tb-time" id="tbTime">--:--</span>
     </div>
     <div class="tb-progress"><i id="tbFill"></i></div>
@@ -27,14 +27,14 @@
       <span id="tbEnd"></span>
       <button data-add="15">+15 min</button>
       <button data-add="30">+30 min</button>
-      <button id="tbStop">Terminar</button>
+      <button id="tbStop" data-i18n="stop">Terminar</button>
     </div>
   </div>
 
   <!-- Aviso de versión nueva -->
   <div id="updBar" class="upd-bar" hidden>
-    <span id="updText">Hay una versión nueva de AVZonazul</span>
-    <button id="btnUpd">Actualizar</button>
+    <span id="updText" data-i18n="updWeb">Hay una versión nueva de AVZonazul</span>
+    <button id="btnUpd" data-i18n="update">Actualizar</button>
   </div>
 
   <header class="hero">
@@ -42,121 +42,173 @@
       <img src="icons/icon-192.png" alt="" width="44" height="44">
       <div class="wordmark"><span class="av">AV</span>Zon<span class="azul">azul</span></div>
     </div>
-    <p class="claim">Aparcas, la abres y te dice <em>con qué app se paga</em>.</p>
+    <p class="claim" data-i18n-html="claim">Aparcas, la abres y te dice <em>con qué app se paga</em>.</p>
 
     <button id="btnLocate" class="sign-btn">
       <span class="sign"><span>P</span></span>
       <span class="sign-text">
-        <b>¿Dónde he aparcado?</b>
-        <small>Usar mi ubicación</small>
+        <b data-i18n="locateTitle">¿Dónde he aparcado?</b>
+        <small data-i18n="locateSub">Usar mi ubicación</small>
       </span>
     </button>
 
     <div class="search">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3a7 7 0 1 1 0 14 7 7 0 0 1 0-14zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm5.3 10.9 5.4 5.4-1.4 1.4-5.4-5.4z"/></svg>
-      <input id="q" type="search" placeholder="o escribe el municipio…" autocomplete="off" aria-label="Buscar municipio">
+      <input id="q" type="search" placeholder="o escribe el municipio…" data-i18n-ph="searchPh" data-i18n-aria="searchAria" autocomplete="off" aria-label="Buscar municipio">
       <ul id="suggest" role="listbox" hidden></ul>
     </div>
+
+    <div id="quick" class="quick" hidden></div>
+
+    <button id="btnSaveCar" class="car-save">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11l1.6-4.6A2 2 0 0 1 8.5 5h7a2 2 0 0 1 1.9 1.4L19 11v7a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H8v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1zm2.2-1h9.6l-1.1-3.2a.5.5 0 0 0-.5-.3h-6.4a.5.5 0 0 0-.5.3zM7.5 15a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm9 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+      <span data-i18n="saveCarHere">Guardar dónde está mi coche</span>
+    </button>
     <div class="road-line" aria-hidden="true"></div>
   </header>
 
   <main>
+    <div id="toast" class="toast" hidden></div>
     <section id="status" class="status" hidden></section>
+
+    <!-- Tu coche -->
+    <section id="car" class="car" hidden>
+      <div class="car-head">
+        <div class="car-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 11l1.6-4.6A2 2 0 0 1 8.5 5h7a2 2 0 0 1 1.9 1.4L19 11v7a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H8v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1zm2.2-1h9.6l-1.1-3.2a.5.5 0 0 0-.5-.3h-6.4a.5.5 0 0 0-.5.3zM7.5 15a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm9 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+        </div>
+        <div class="car-info">
+          <h3 data-i18n="carTitle">Tu coche</h3>
+          <p id="carMeta"></p>
+        </div>
+        <img id="carThumb" class="car-thumb" alt="" hidden>
+      </div>
+      <p id="carNote" class="car-note" hidden></p>
+      <div id="carHere" class="car-here" hidden>
+        <span data-i18n="carParkedHere">¿Has aparcado aquí?</span>
+        <button id="btnCarHere" class="btn-line" data-i18n="carSaveHere">Guardar aquí</button>
+      </div>
+      <div class="car-actions">
+        <a id="btnBackCar" class="btn-solid" target="_blank" rel="noopener" data-i18n="backToCar">Volver al coche</a>
+        <button id="btnCarPhoto" class="btn-soft" data-i18n="carPhoto">Foto</button>
+        <button id="btnCarNote" class="btn-soft" data-i18n="carNote">Nota</button>
+        <button id="btnCarForget" class="btn-soft" data-i18n="carForget">Olvidar</button>
+      </div>
+      <div id="carNoteEdit" class="car-note-edit" hidden>
+        <input id="carNoteInput" maxlength="120" data-i18n-ph="carNotePh" placeholder="Ej.: planta -2, plaza 145">
+        <button id="btnCarNoteSave" class="btn-solid" data-i18n="carNoteSave">Guardar nota</button>
+      </div>
+      <input id="carPhotoInput" type="file" accept="image/*" capture="environment" hidden>
+    </section>
 
     <section id="result" class="result" hidden aria-live="polite">
       <div id="map" class="map"></div>
       <article class="ticket">
         <div class="ticket-head">
-          <small id="rLabel">Apps que funcionan en</small>
-          <h2 id="rName"></h2>
-          <p id="rProv"></p>
+          <div>
+            <small id="rLabel" data-i18n="appsIn">Apps que funcionan en</small>
+            <h2 id="rName"></h2>
+            <p id="rProv"></p>
+          </div>
+          <button id="btnFav" class="fav" aria-pressed="false" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>
+          </button>
         </div>
         <div id="rHours" class="hours" hidden></div>
         <ul id="rApps" class="apps"></ul>
         <div id="rEmpty" class="empty" hidden>
-          <p>Todavía no tenemos este municipio. Mira el cartel del parquímetro: suele decir la app oficial.</p>
-          <p>¿Ya sabes cuál funciona? Dínoslo y lo añadimos para el próximo que aparque aquí.</p>
-          <button class="btn-solid" id="btnAddHere">Añadir este municipio</button>
+          <p data-i18n="emptyA">Todavía no tenemos este municipio. Mira el cartel del parquímetro: suele decir la app oficial.</p>
+          <p data-i18n="emptyB">¿Ya sabes cuál funciona? Dínoslo y lo añadimos para el próximo que aparque aquí.</p>
+          <button class="btn-solid" id="btnAddHere" data-i18n="addPlace">Añadir este municipio</button>
         </div>
-        <p id="rLegend" class="legend">«Confirmada»: dato de fuentes recientes · «Por confirmar»: sale en listados antiguos.</p>
+        <div id="rZbe" class="zbe" hidden></div>
+        <p id="rLegend" class="legend" data-i18n="legend">«Confirmada»: dato de fuentes recientes · «Por confirmar»: sale en listados antiguos.</p>
       </article>
 
       <!-- Aviso de fin de tiempo -->
       <section id="timer" class="timer">
         <h3>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a9 9 0 1 1 0 18 9 9 0 0 1 0-18zm0 2a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm1 2v4.6l3 1.8-1 1.7-4-2.4V8zM9 1h6v2H9z"/></svg>
-          Avísame antes de que se acabe
+          <span data-i18n="timerTitle">Avísame antes de que se acabe</span>
         </h3>
-        <p class="timer-sub">¿Cuánto tiempo has pagado?</p>
+        <p class="timer-sub" data-i18n="timerSub">¿Cuánto tiempo has pagado?</p>
         <div class="chips" id="chips">
           <button data-min="30">30 min</button>
           <button data-min="60">1 h</button>
           <button data-min="90">1 h 30</button>
           <button data-min="120">2 h</button>
-          <label class="chip-custom"><input id="customMin" type="number" inputmode="numeric" min="5" max="600" placeholder="otro"> min</label>
+          <label class="chip-custom"><input id="customMin" type="number" inputmode="numeric" min="5" max="600" placeholder="otro" data-i18n-ph="other"> min</label>
         </div>
         <div class="timer-row">
-          <label>Avisar
+          <label><span data-i18n="warn">Avisar</span>
             <select id="before">
-              <option value="5">5 min antes</option>
-              <option value="10" selected>10 min antes</option>
-              <option value="15">15 min antes</option>
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="15">15</option>
             </select>
           </label>
-          <button id="btnStart" class="btn-solid" disabled>Empezar</button>
+          <button id="btnStart" class="btn-solid" disabled data-i18n="start">Empezar</button>
         </div>
       </section>
     </section>
 
-    <section class="tip">
-      <b>Consejo:</b> el cartel del parquímetro suele indicar la app oficial. Si ves otra que aquí no sale, avísanos.
-    </section>
+    <section class="tip" data-i18n-html="tip"><b>Consejo:</b> el cartel del parquímetro suele indicar la app oficial. Si ves otra que aquí no sale, avísanos.</section>
 
     <section id="install" class="install" hidden>
-      <span>Añádela a tu pantalla de inicio para tenerla a mano.</span>
-      <button id="btnInstall" class="btn-line">Instalar</button>
+      <span id="installText" data-i18n="installText">Añádela a tu pantalla de inicio para tenerla a mano.</span>
+      <button id="btnInstall" class="btn-line" data-i18n="install">Instalar</button>
     </section>
   </main>
 
   <footer>
-    <button id="btnReport" class="link">¿Falta algo o está mal? Avísanos</button>
-    <p class="meta"><span id="count"></span> · Datos revisados el <span id="updated"></span></p>
-    <a id="apkLink" class="apk-link" hidden>Descargar la app para Android</a>
-    <p class="sign-off"><svg class="dl-logo" viewBox="0 -10 250 250" aria-hidden="true"><defs><clipPath id="dlc"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc)"/></g><g fill="currentColor"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg><span>Un proyecto <b>DanLab</b> · <span id="ver"></span></span></p>
+    <button id="btnReport" class="link" data-i18n="report">¿Falta algo o está mal? Avísanos</button>
+    <p class="meta"><span id="count"></span> · <span id="updated"></span></p>
+    <a id="apkLink" class="apk-link" hidden data-i18n="apk">Descargar la app para Android</a>
+    <div class="langs" role="group" aria-label="Idioma">
+      <button data-lang="es">Castellano</button>
+      <button data-lang="ca">Català</button>
+      <button data-lang="en">English</button>
+    </div>
+    <p id="langNote" class="meta" hidden></p>
+    <p class="sign-off"><svg class="dl-logo" viewBox="0 -10 250 250" aria-hidden="true"><defs><clipPath id="dlc"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc)"/></g><g fill="currentColor"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg><span><span data-i18n-html="project">Un proyecto <b>DanLab</b></span> · <span id="ver"></span></span></p>
   </footer>
+
+  <!-- Foto del coche a pantalla completa -->
+  <dialog id="photoView" class="photo-view"><img id="photoBig" alt=""></dialog>
 
   <!-- Formulario de avisos -->
   <dialog id="sheet" class="sheet">
     <form id="reportForm" method="dialog">
       <header>
-        <h3>Ayúdanos a mejorar</h3>
-        <button type="button" class="x" id="sheetClose" aria-label="Cerrar">×</button>
+        <h3 data-i18n="fTitle">Ayúdanos a mejorar</h3>
+        <button type="button" class="x" id="sheetClose" data-i18n-aria="close" aria-label="Cerrar">×</button>
       </header>
-      <label class="field">Municipio
-        <input id="fMuni" required autocomplete="off" placeholder="Ej.: Sabadell">
+      <label class="field"><span data-i18n="fMuni">Municipio</span>
+        <input id="fMuni" required autocomplete="off" placeholder="Ej.: Sabadell" data-i18n-ph="fMuniPh">
       </label>
       <fieldset class="field seg">
-        <legend>¿Qué pasa?</legend>
-        <label><input type="radio" name="estado" value="Funciona" checked> <span>Esta app funciona aquí</span></label>
-        <label><input type="radio" name="estado" value="Ya no funciona"> <span>Esta app ya no funciona</span></label>
+        <legend data-i18n="fWhat">¿Qué pasa?</legend>
+        <label><input type="radio" name="estado" value="Funciona" checked> <span data-i18n="fWorks">Esta app funciona aquí</span></label>
+        <label><input type="radio" name="estado" value="Ya no funciona"> <span data-i18n="fBroken">Esta app ya no funciona</span></label>
       </fieldset>
-      <label class="field">App
+      <label class="field"><span data-i18n="fApp">App</span>
         <select id="fApp" required></select>
       </label>
-      <label class="field" id="fOtherWrap" hidden>Nombre de la app
-        <input id="fOther" placeholder="Tal como sale en la tienda de apps">
+      <label class="field" id="fOtherWrap" hidden><span data-i18n="fOtherName">Nombre de la app</span>
+        <input id="fOther" placeholder="Tal como sale en la tienda de apps" data-i18n-ph="fOtherPh">
       </label>
-      <label class="field">Comentario <small>(opcional)</small>
-        <textarea id="fNote" rows="2" placeholder="Ej.: lo pone el cartel del parquímetro de la calle Mayor"></textarea>
+      <label class="field"><span data-i18n="fNote">Comentario</span> <small data-i18n="fOptional">(opcional)</small>
+        <textarea id="fNote" rows="2" placeholder="Ej.: lo pone el cartel del parquímetro de la calle Mayor" data-i18n-ph="fNotePh"></textarea>
       </label>
-      <button class="btn-solid wide" id="fSend" type="submit">Enviar</button>
-      <p class="sheet-ok" id="fOk" hidden>¡Gracias! Lo revisamos y lo añadimos.</p>
+      <button class="btn-solid wide" id="fSend" type="submit" data-i18n="fSend">Enviar</button>
+      <p class="sheet-ok" id="fOk" hidden data-i18n="fThanks">¡Gracias! Lo revisamos y lo añadimos.</p>
     </form>
   </dialog>
 
   <script src="lib/leaflet.js"></script>
   <script src="version.js"></script>
   <script src="config.js"></script>
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
