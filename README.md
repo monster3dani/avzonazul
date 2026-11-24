@@ -31,7 +31,7 @@ Si cambias cualquier otro fichero de la app, sube el número en `version.js`. Lo
 - Novedades → el del medio (`1.1.1` → `1.2.0`).
 - Cambio enorme → el primero (`1.9.0` → `2.0.0`).
 
-Historial: 1.0.0 primera versión · 1.1.0 portada nueva, mapa, logos, horarios, aviso de ticket y formulario con lista de apps · 1.2.0 app Android (APK), logo DanLab oficial y más ciudades · 1.3.0 dónde está mi coche, abrir la app de pago instalada, ZBE, festivos, cuenta atrás fija en notificaciones, recientes/favoritas e idiomas (castellano, català, English).
+Historial: 1.0.0 primera versión · 1.1.0 portada nueva, mapa, logos, horarios, aviso de ticket y formulario con lista de apps · 1.2.0 app Android (APK), logo DanLab oficial y más ciudades · 1.3.0 dónde está mi coche, abrir la app de pago instalada, ZBE, festivos, cuenta atrás fija en notificaciones, recientes/favoritas e idiomas (castellano, català, English) · 1.4.0 apartado «Otras apps de DanLab».
 
 ## Formato de data.json
 
@@ -90,3 +90,9 @@ GitHub fabrica el APK solo cada vez que cambias `version.js`, y lo publica en **
 - Los datos (`data.json`) los lee de la web, así que siguen actualizándose sin fabricar otra APK.
 
 Ficheros de la parte Android: `native/` (iconos, actualizador, preparación), `package.json`, `capacitor.config.json` y `.github/workflows/apk.yml`. La clave de firma es `native/avzonazul.keystore`: no la borres ni la cambies, o las actualizaciones no se podrán instalar encima.
+
+## Otras apps de DanLab
+
+Abajo del todo, junto a «Un proyecto DanLab», está el botón **Otras apps de DanLab**. La lista NO está dentro de esta app: se lee de
+`https://raw.githubusercontent.com/monster3dani/danlab-apps/main/apps.json` (repositorio `danlab-apps`), común para todas tus apps.
+Para añadir o cambiar una app, edita ese `apps.json`: AVZonazul lo verá sola, sin publicar versión nueva. Se salta a sí misma (`"id": "avzonazul"`).

@@ -5,4 +5,4 @@
 //  Los móviles que la tengan verán "Hay una versión nueva" y
 //  con un toque se actualizan solos.
 //  (Si solo cambias data.json NO hace falta tocarlo.)
-self.AVZ_VERSION = "1.3.0";
+self.AVZ_VERSION = "1.4.0";

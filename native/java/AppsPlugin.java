@@ -65,6 +65,38 @@ public class AppsPlugin extends Plugin {
         call.resolve(ret);
     }
 
+    /** packages: ["net.danlab.senda", ...]  ->  { installed: { paquete: true } } */
+    @PluginMethod
+    public void check(PluginCall call) {
+        JSObject res = new JSObject();
+        try {
+            JSONArray pkgs = call.getArray("packages");
+            PackageManager pm = getContext().getPackageManager();
+            for (int i = 0; pkgs != null && i < pkgs.length(); i++) {
+                String p = pkgs.optString(i, "");
+                if (!p.isEmpty() && pm.getLaunchIntentForPackage(p) != null) res.put(p, true);
+            }
+        } catch (Exception ignored) { }
+        JSObject ret = new JSObject();
+        ret.put("installed", res);
+        call.resolve(ret);
+    }
+
+    /** Abre el menú de compartir de Android con un enlace. */
+    @PluginMethod
+    public void share(PluginCall call) {
+        String text = call.getString("text", "");
+        String url = call.getString("url", "");
+        Intent send = new Intent(Intent.ACTION_SEND);
+        send.setType("text/plain");
+        send.putExtra(Intent.EXTRA_SUBJECT, call.getString("title", ""));
+        send.putExtra(Intent.EXTRA_TEXT, text.isEmpty() ? url : text + "\n" + url);
+        Intent chooser = Intent.createChooser(send, call.getString("title", ""));
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getContext().startActivity(chooser);
+        call.resolve();
+    }
+
     @PluginMethod
     public void launch(PluginCall call) {
         String pkg = call.getString("package");

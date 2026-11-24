@@ -4,6 +4,10 @@
 // ============================================================
 window.AVZ_TEXTS = {
   es: {
+    dlEntry: "Otras apps de DanLab", dlSub: "Todas gratis y sin publicidad", dlLoading: "Cargando…",
+    dlOffline: "No se ha podido cargar la lista. Comprueba la conexión.", dlOpen: "Abrir", dlDownload: "Descargar", dlView: "Ver",
+    dlShare: "Compartir enlace", dlCar: "Para la pantalla del coche", dlCopied: "Enlace copiado", dlQr: "Escanéalo con el móvil",
+    dlShareText: "{n}: ábrelo en la pantalla del coche",
     claim: "Aparcas, la abres y te dice <em>con qué app se paga</em>.",
     locateTitle: "¿Dónde he aparcado?", locateSub: "Usar mi ubicación",
     searchPh: "o escribe el municipio…", searchAria: "Buscar municipio",
@@ -74,6 +78,10 @@ window.AVZ_TEXTS = {
   },
 
   ca: {
+    dlEntry: "Altres apps de DanLab", dlSub: "Totes gratis i sense publicitat", dlLoading: "Carregant…",
+    dlOffline: "No s'ha pogut carregar la llista. Comprova la connexió.", dlOpen: "Obrir", dlDownload: "Descarregar", dlView: "Veure",
+    dlShare: "Compartir l'enllaç", dlCar: "Per a la pantalla del cotxe", dlCopied: "Enllaç copiat", dlQr: "Escaneja'l amb el mòbil",
+    dlShareText: "{n}: obre-ho a la pantalla del cotxe",
     claim: "Aparques, l'obres i et diu <em>amb quina app es paga</em>.",
     locateTitle: "On he aparcat?", locateSub: "Fer servir la meva ubicació",
     searchPh: "o escriu el municipi…", searchAria: "Cercar municipi",
@@ -137,6 +145,10 @@ window.AVZ_TEXTS = {
   },
 
   en: {
+    dlEntry: "More apps by DanLab", dlSub: "All free and ad-free", dlLoading: "Loading…",
+    dlOffline: "Couldn't load the list. Check your connection.", dlOpen: "Open", dlDownload: "Download", dlView: "View",
+    dlShare: "Share link", dlCar: "For your car's screen", dlCopied: "Link copied", dlQr: "Scan it with your phone",
+    dlShareText: "{n}: open it on your car's screen",
     claim: "Park, open it, and it tells you <em>which app to pay with</em>.",
     locateTitle: "Where have I parked?", locateSub: "Use my location",
     searchPh: "or type the town…", searchAria: "Search town",

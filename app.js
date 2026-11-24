@@ -94,6 +94,7 @@
     LANG = l; store.set("lang", l); applyI18n();
     if (lastView) render(lastView.place, lastView.name, lastView.coords, true);
     renderCar(); renderQuick(); runTicket();
+    if (dlOpenNow) renderDanlab();
   }
 
   // ================= datos =================
@@ -800,6 +801,101 @@
     }
   }
 
+  // ================= otras apps de DanLab =================
+  // Lista común para todas las apps de DanLab, en un repositorio público de GitHub.
+  // Se pide al abrir el apartado (como mucho cada 10 min) y se guarda para verla sin internet.
+  const DL_URL = CFG.danlabApps || "https://raw.githubusercontent.com/monster3dani/danlab-apps/main/apps.json";
+  const DL_SELF = "avzonazul";
+  const dlText = o => !o ? "" : typeof o === "string" ? o : (o[LANG] || o.es || Object.values(o)[0] || "");
+  const dlAbs = rel => { try { return new URL(rel, DL_URL).href; } catch (_) { return rel; } };
+  async function dlList() {
+    const c = store.get("danlab:list");
+    if (c && Date.now() - c.t < 10 * 60000) return c.data;
+    try {
+      const r = await fetch(DL_URL, { cache: "no-cache" });
+      if (!r.ok) throw 0;
+      const j = await r.json();
+      if (!j || !Array.isArray(j.apps)) throw 0;
+      store.set("danlab:list", { t: Date.now(), data: j });
+      return j;
+    } catch (_) { return c ? c.data : null; }
+  }
+  // Iconos y QR: se guardan en el móvil y se renuevan como mucho una vez por semana
+  async function dlImage(rel) {
+    const key = "danlab:img:" + rel, c = store.get(key);
+    if (c && Date.now() - c.t < 7 * 864e5) return c.data;
+    try {
+      const r = await fetch(dlAbs(rel), { cache: "no-cache" });
+      if (!r.ok) throw 0;
+      const blob = await r.blob();
+      const data = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
+      store.set(key, { t: Date.now(), data });
+      return data;
+    } catch (_) { return c ? c.data : dlAbs(rel); }
+  }
+  async function dlShare(app) {
+    const url = app.url, text = T("dlShareText", { n: app.name });
+    const A = Plugin("Apps");
+    try {
+      if (A && A.share) { await A.share({ title: app.name, text, url }); return; }
+      if (navigator.share) { await navigator.share({ title: app.name, text, url }); return; }
+      await navigator.clipboard.writeText(url);
+      const m = $("#dlMsg"); m.textContent = T("dlCopied"); m.hidden = false; setTimeout(() => { m.hidden = true; }, 2500);
+    } catch (_) {}
+  }
+  let dlOpenNow = false;
+  async function renderDanlab() {
+    const list = $("#dlList"), msg = $("#dlMsg");
+    list.innerHTML = ""; msg.textContent = T("dlLoading"); msg.hidden = false;
+    const data = await dlList();
+    if (!data) { msg.textContent = T("dlOffline"); return; }
+    const apps = data.apps.filter(a => a && a.id !== DL_SELF && a.name);
+    let installed = {};
+    const A = Plugin("Apps");
+    const pkgs = apps.filter(a => a.device !== "car" && a.package).map(a => a.package);
+    if (A && A.check && pkgs.length) { try { installed = (await A.check({ packages: pkgs })).installed || {}; } catch (_) {} }
+    msg.hidden = true;
+    for (const app of apps) {
+      const car = app.device === "car";
+      const li = document.createElement("li"); li.className = "dl-app";
+      const ico = document.createElement("div"); ico.className = "dl-ico"; ico.textContent = app.name.slice(0, 1);
+      if (app.icon) dlImage(app.icon).then(src => { const img = new Image(); img.alt = ""; img.onload = () => { ico.textContent = ""; ico.appendChild(img); }; img.src = src; });
+      const body = document.createElement("div"); body.className = "dl-body";
+      const name = document.createElement("h4"); name.textContent = app.name;
+      body.appendChild(name);
+      if (car) { const b = document.createElement("span"); b.className = "dl-car"; b.textContent = T("dlCar"); body.appendChild(b); }
+      const desc = document.createElement("p"); desc.textContent = dlText(app.desc); body.appendChild(desc);
+      if (car && app.note) { const n = document.createElement("p"); n.className = "dl-note"; n.textContent = dlText(app.note); body.appendChild(n); }
+      const act = document.createElement("div"); act.className = "dl-actions";
+      const link = (t, href, main) => { const a = document.createElement("a"); a.href = href; a.target = "_blank"; a.rel = "noopener"; a.textContent = t; if (main) a.className = "main"; act.appendChild(a); };
+      const btn = (t, fn, main) => { const b = document.createElement("button"); b.type = "button"; b.textContent = t; b.onclick = fn; if (main) b.className = "main"; act.appendChild(b); };
+      if (car) {
+        if (app.url) { link(T("dlView"), app.url, true); btn(T("dlShare"), () => dlShare(app)); }
+      } else if (app.package && installed[app.package]) {
+        btn(T("dlOpen"), () => A.launch({ package: app.package }).catch(() => {}), true);
+      } else if (PLATFORM === "android" && app.apk) {
+        link(T("dlDownload"), app.apk, true); if (app.url) link(T("dlView"), app.url);
+      } else if (app.url) link(T("dlView"), app.url, true);
+      body.appendChild(act);
+      li.append(ico, body);
+      // En el ordenador, el QR para abrirla con el móvil
+      if (!car && app.qr && PLATFORM === "otro") {
+        const q = document.createElement("figure"); q.className = "dl-qr";
+        const qi = new Image(); qi.alt = ""; dlImage(app.qr).then(src => { qi.src = src; });
+        const cap = document.createElement("figcaption"); cap.textContent = T("dlQr");
+        q.append(qi, cap); li.appendChild(q);
+      }
+      list.appendChild(li);
+    }
+  }
+  function setupDanlab() {
+    const dlg = $("#dlSheet");
+    $("#btnDanlab").onclick = () => { dlg.showModal(); dlOpenNow = true; renderDanlab(); };
+    $("#dlClose").onclick = () => dlg.close();
+    dlg.addEventListener("close", () => { dlOpenNow = false; });
+    dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+  }
+
   // ================= arranque =================
   async function init() {
     applyI18n();
@@ -813,7 +909,7 @@
       if (i >= 0) f.splice(i, 1); else f.unshift(lastPlace.n);
       store.set("favoritas", f); paintFav(); renderQuick();
     };
-    setupSearch(); setupInstall(); setupCar();
+    setupSearch(); setupInstall(); setupCar(); setupDanlab();
     try { await loadData(); } catch (_) { status(T("noData")); return; }
     applyI18n(); renderQuick(); renderCar();
     setupReport(); setupTimer();

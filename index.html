@@ -170,11 +170,27 @@
       <button data-lang="en">English</button>
     </div>
     <p id="langNote" class="meta" hidden></p>
+    <button id="btnDanlab" class="link dl-entry" data-i18n="dlEntry">Otras apps de DanLab</button>
     <p class="sign-off"><svg class="dl-logo" viewBox="0 -10 250 250" aria-hidden="true"><defs><clipPath id="dlc"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc)"/></g><g fill="currentColor"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg><span><span data-i18n-html="project">Un proyecto <b>DanLab</b></span> · <span id="ver"></span></span></p>
   </footer>
 
   <!-- Foto del coche a pantalla completa -->
   <dialog id="photoView" class="photo-view"><img id="photoBig" alt=""></dialog>
+
+  <!-- Otras apps de DanLab -->
+  <dialog id="dlSheet" class="sheet dl-sheet">
+    <div class="dl-wrap">
+      <header>
+        <div>
+          <h3 data-i18n="dlEntry">Otras apps de DanLab</h3>
+          <p class="dl-sub" data-i18n="dlSub">Todas gratis y sin publicidad</p>
+        </div>
+        <button type="button" class="x" id="dlClose" data-i18n-aria="close" aria-label="Cerrar">×</button>
+      </header>
+      <p id="dlMsg" class="dl-msg" hidden></p>
+      <ul id="dlList" class="dl-list"></ul>
+    </div>
+  </dialog>
 
   <!-- Formulario de avisos -->
   <dialog id="sheet" class="sheet">
